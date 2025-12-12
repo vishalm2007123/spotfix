@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CivicHero Certificate</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Georgia, serif;
+        background: #f4f4f4;
+        padding: 20px;
+    }
+
+    .certificate {
+        background: white;
+        border: 8px solid #0d47a1;
+        padding: 40px;
+        max-width: 850px;
+        margin: auto;
+        text-align: center;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+        font-size: 40px;
+        color: #0d47a1;
+        margin-bottom: 5px;
+    }
+
+    h2 {
+        font-size: 32px;
+        margin-top: 40px;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 18px;
+        margin: 5px 0;
+    }
+
+    .name {
+        font-size: 28px;
+        font-weight: bold;
+        margin: 20px 0;
+        color: #1565c0;
+    }
+
+    .footer {
+        margin-top: 50px;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .download-btn {
+        margin-top: 25px;
+        padding: 10px 20px;
+        background: #0d47a1;
+        color: white;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 15px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div class="certificate" id="certBox">
+    <h1>🏅 CivicHero Achievement Award</h1>
+    <p>This certificate is proudly presented to</p>
+
+    <div class="name" id="username">USER NAME</div>
+
+    <p>for outstanding contribution in reporting civic issues</p>
+    <p>and helping make the city a better place.</p>
+
+    <h2>🌟 Your Impact Matters 🌟</h2>
+
+    <p class="footer">Issued by CivicFix — Citizen Empowerment Initiative</p>
+</div>
+<br>
+
+<center>
+<a class="download-btn" onclick="downloadPDF()">Download Certificate</a>
+</center>
+
+<script>
+let user = localStorage.getItem("user_name") || "Citizen";
+document.getElementById("username").innerText = user;
+
+function downloadPDF() {
+    window.print();
+}
+</script>
+
+</body>
+</html>
+

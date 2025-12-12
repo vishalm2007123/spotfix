@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Staff Dashboard – Spot Fix</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #eef2f7;
+    }
+
+    .header {
+        background: #004a94;
+        padding: 18px;
+        color: white;
+        text-align: center;
+        font-size: 22px;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 800px;
+        margin: 20px auto;
+    }
+
+    .card {
+        background: white;
+        padding: 18px;
+        margin: 15px 0;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+
+    .title {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 6px;
+    }
+
+    .value {
+        font-size: 26px;
+        font-weight: bold;
+        color: #004a94;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 12px 18px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        margin-top: 15px;
+        font-size: 16px;
+    }
+
+    .btn:hover {
+        background: #005fcc;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    Government Staff Dashboard
+</div>
+
+<div class="container">
+
+    <!-- TOTAL REPORTS -->
+    <div class="card">
+        <div class="title">Total Reports Received</div>
+        <div class="value" id="totalReports">0</div>
+    </div>
+
+    <!-- UNSOLVED -->
+    <div class="card">
+        <div class="title">Unsolved / Pending Cases</div>
+        <div class="value" id="unsolved">0</div>
+    </div>
+
+    <!-- SOLVED -->
+    <div class="card">
+        <div class="title">Solved Cases</div>
+        <div class="value" id="solved">0</div>
+    </div>
+
+    <!-- DEADLINE BASED URGENT ISSUES -->
+    <div class="card">
+        <div class="title">Urgent Issues (Deadline Passed)</div>
+        <div class="value" id="urgent">0</div>
+    </div>
+
+    <!-- TOTAL AMOUNT ALLOCATED -->
+    <div class="card">
+        <div class="title">Total Amount Allocated</div>
+        <div class="value" id="totalMoney">₹0</div>
+    </div>
+
+    <!-- AVERAGE ALLOCATION PER COMPLAINT -->
+    <div class="card">
+        <div class="title">Average Amount Spent Per Issue</div>
+        <div class="value" id="avgMoney">₹0</div>
+    </div>
+
+    <a class="btn" href="issue_management.html">Manage Complaints</a>
+</div>
+
+<script>
+// -------------------------------------
+// INITIAL DATA SETUP (RUNS IF FIRST TIME)
+// -------------------------------------
+if (!localStorage.getItem("complaints")) {
+    localStorage.setItem("complaints", JSON.stringify([]));
+}
+
+if (!localStorage.getItem("money_allocated_total")) {
+    localStorage.setItem("money_allocated_total", 0);
+}
+
+// -------------------------------------
+// DASHBOARD CALCULATIONS
+// -------------------------------------
+function loadDashboard() {
+    let complaints = JSON.parse(localStorage.getItem("complaints")) || [];
+
+    let total = complaints.length;
+    let solved = complaints.filter(c => c.status === "Solved").length;
+    let unsolved = complaints.filter(c => c.status !== "Solved").length;
+
+    // Count deadlines passed
+    let urgent = complaints.filter(c => {
+        if (!c.deadline) return false;
+        return new Date(c.deadline) < new Date() && c.status !== "Solved";
+    }).length;
+
+    let totalMoney = parseInt(localStorage.getItem("money_allocated_total")) || 0;
+
+    let avgMoney = total > 0 ? Math.floor(totalMoney / total) : 0;
+
+    // Update UI
+    document.getElementById("totalReports").innerText = total;
+    document.getElementById("unsolved").innerText = unsolved;
+    document.getElementById("solved").innerText = solved;
+    document.getElementById("urgent").innerText = urgent;
+    document.getElementById("totalMoney").innerText = "₹" + totalMoney;
+    document.getElementById("avgMoney").innerText = "₹" + avgMoney;
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>

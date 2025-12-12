@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spot Fix Rewards</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #0d47a1, #1976d2);
+        color: white;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 25px auto;
+        padding: 15px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .user-info {
+        text-align: center;
+        margin-bottom: 20px;
+        background: rgba(255,255,255,0.15);
+        padding: 15px;
+        border-radius: 14px;
+    }
+
+    .reward-card {
+        background: white;
+        color: #222;
+        padding: 20px;
+        border-radius: 16px;
+        max-width: 500px;
+        margin: 20px auto;
+        text-align: center;
+        box-shadow: 0 5px 16px rgba(0,0,0,0.3);
+    }
+
+    .reward-card h2 {
+        margin: 0;
+        color: #0d47a1;
+    }
+
+    .reward-card p {
+        font-size: 14px;
+        margin: 10px 0;
+    }
+
+    .btn {
+        padding: 12px 22px;
+        background: #ffca28;
+        color: #222;
+        border: none;
+        border-radius: 22px;
+        font-size: 16px;
+        margin-top: 12px;
+        cursor: pointer;
+        font-weight: bold;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    }
+
+    .btn:disabled {
+        background: #bdbdbd;
+        cursor: not-allowed;
+    }
+
+    #successBox {
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(76,175,80,0.2);
+        color: #d0ffd4;
+        font-weight: bold;
+        border-radius: 12px;
+        text-align: center;
+        display: none;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎁 Spot Fix Rewards</h1>
+
+    <div class="user-info">
+        <h3 id="userName">Hello Citizen</h3>
+        <p>You currently have <b id="coins">0</b> coins 🪙</p>
+        <p>Redeem your achievements and show your impact!</p>
+    </div>
+
+    <div class="reward-card">
+        <h2>🏅 CivicHero Achievement Certificate</h2>
+        <p>Redeem this certificate by helping your city.</p>
+        <p><b>Cost:</b> 250 coins</p>
+
+        <button class="btn" onclick="redeem()" id="redeemBtn">Redeem Certificate</button>
+
+        <div id="successBox">🎉 Certificate Redeemed! <br> Click below to view/download.</div>
+
+        <button class="btn" onclick="openCertificate()" id="viewBtn" style="display:none;">
+            View Certificate
+        </button>
+    </div>
+
+</div>
+
+<script>
+let user = localStorage.getItem("user_name") || "Citizen";
+let userKey = "user_coins_" + user;
+
+document.getElementById("userName").innerText = "Hello, " + user;
+
+let coins = parseInt(localStorage.getItem(userKey)) || 0;
+document.getElementById("coins").innerText = coins;
+
+// Disable if already redeemed
+if (localStorage.getItem("has_certificate_" + user) === "true") {
+    document.getElementById("redeemBtn").disabled = true;
+    document.getElementById("viewBtn").style.display = "inline-block";
+    document.getElementById("successBox").style.display = "block";
+}
+
+function redeem() {
+    if (coins < 250) {
+        alert("You need 250 coins to redeem the certificate.");
+        return;
+    }
+
+    coins -= 250;
+    localStorage.setItem(userKey, coins);
+    localStorage.setItem("has_certificate_" + user, "true");
+
+    document.getElementById("coins").innerText = coins;
+    document.getElementById("successBox").style.display = "block";
+    document.getElementById("redeemBtn").disabled = true;
+    document.getElementById("viewBtn").style.display = "inline-block";
+
+    alert("Certificate Redeemed! 🎉");
+}
+
+function openCertificate() {
+    window.location.href = "certificate.html";
+}
+</script>
+
+</body>
+</html>

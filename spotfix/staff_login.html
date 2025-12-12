@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Staff Login – Spot Fix</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #eef2f7;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 420px;
+        background: white;
+        margin: 40px auto;
+        padding: 50px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border: 1px solid #bbb;
+        font-size: 15px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #0073d8;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        margin-top: 12px;
+        font-size: 17px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #005fb1;
+    }
+
+    .error { color: red; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Government Staff Login</h2>
+
+    <input type="text" id="staffid" placeholder="Staff ID">
+    <input type="password" id="password" placeholder="Password">
+    
+    <button onclick="loginStaff()">Login</button>
+    <p id="msg" class="error"></p>
+
+    <p style="text-align:center;margin-top:10px;">
+        Not registered?  
+        <a href="staff_register.html">Register Here</a>
+    </p>
+</div>
+
+<script>
+function loginStaff() {
+    let id = document.getElementById("staffid").value.trim();
+    let pass = document.getElementById("password").value.trim();
+    let msg = document.getElementById("msg");
+
+    msg.innerHTML = "";
+
+    let data = localStorage.getItem("staff_" + id);
+    if (!data) {
+        msg.innerHTML = "Invalid Staff ID.";
+        return;
+    }
+
+    let staff = JSON.parse(data);
+
+    if (staff.pass !== pass) {
+        msg.innerHTML = "Incorrect password.";
+        return;
+    }
+
+    localStorage.setItem("active_staff", id);
+
+    window.location.href = "issue_management.html";
+}
+</script>
+
+</body>
+</html>

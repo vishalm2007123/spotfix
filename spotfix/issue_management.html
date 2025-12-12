@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SpotFix — Issue Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#f4f7fb;--primary:#0f4b8f;--accent:#0073e6;--muted:#6b7280;--card:#ffffff}
+        *{box-sizing:border-box}
+        body{margin:0;font-family:'Inter',system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:#0b1a2b}
+        .layout{display:flex;min-height:100vh}
+        .sidebar{width:220px;background:var(--primary);color:white;padding:20px}
+        .logo{font-weight:700;font-size:18px;text-align:center;margin-bottom:20px}
+        .nav{display:flex;flex-direction:column;gap:10px}
+        .nav .item{background:transparent;padding:10px;border-radius:8px;color:rgba(255,255,255,0.95);cursor:pointer;text-align:center}
+        .nav .item:hover{background:rgba(255,255,255,0.06)}
+        .main{flex:1;padding:24px}
+        .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+        .page-title{font-size:20px;font-weight:700;color:var(--primary)}
+        .header-right{display:flex;gap:12px;align-items:center}
+        .search{padding:8px 12px;border-radius:10px;border:1px solid #d1d5db;background:white;min-width:220px}
+        .stats{display:flex;gap:12px;margin-bottom:16px}
+        .stat{background:var(--card);padding:10px 14px;border-radius:10px;box-shadow:0 1px 4px rgba(16,24,40,0.04);font-size:14px}
+        .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(11,22,40,0.06)}
+        .table{width:100%;border-collapse:collapse}
+        .table th{background:linear-gradient(90deg,var(--primary),var(--accent));color:white;padding:12px;text-align:left;font-weight:600}
+        .table td{padding:12px;border-bottom:1px solid #eef2f7}
+        .actions{display:flex;gap:6px;flex-wrap:wrap}
+        .btn{padding:6px 10px;border-radius:8px;border:none;cursor:pointer;color:white;font-size:13px}
+        .verify{background:#0366d6}
+        .progress{background:#ff8c00}
+        .solve{background:#22863a}
+        .money-btn{background:#7b61ff}
+        .deadline-btn{background:#e53e3e}
+        .view-btn{background:#374151}
+        .no-data{text-align:center;padding:18px;color:var(--muted)}
+        @media(max-width:800px){.sidebar{display:none}.header{flex-direction:column;align-items:flex-start}.search{width:100%}.actions{gap:4px}}
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="logo">SpotFix — Staff</div>
+            <nav class="nav">
+                <div class="item" onclick="location.href='staff_home.html'">🏠 Dashboard</div>
+                <div class="item" onclick="location.href='issue_management.html'">📝 Manage Issues</div>
+                <div class="item" onclick="logout()">🚪 Logout</div>
+            </nav>
+        </aside>
+        <main class="main">
+            <div class="header">
+                <div>
+                    <div class="page-title">Manage Reported Issues</div>
+                    <div style="color:var(--muted);font-size:13px;margin-top:6px">Review reported complaints and update statuses</div>
+                </div>
+                <div class="header-right">
+                    <input id="searchInput" class="search" placeholder="Search by title or category" oninput="loadTable()" />
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat"><strong id="totalCount">0</strong> Total</div>
+                <div class="stat"><strong id="pendingCount">0</strong> Pending</div>
+                <div class="stat"><strong id="verifiedCount">0</strong> Verified</div>
+                <div class="stat"><strong id="inProgressCount">0</strong> In-Progress</div>
+                <div class="stat"><strong id="solvedCount">0</strong> Solved</div>
+            </div>
+
+            <div class="card">
+                <div style="margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+                    <label style="color:var(--muted)">Status</label>
+                    <select id="statusFilter" onchange="loadTable()" style="padding:8px;border-radius:8px;border:1px solid #e6eef8">
+                        <option value="All">All</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Verified">Verified</option>
+                        <option value="In-Progress">In-Progress</option>
+                        <option value="Solved">Solved</option>
+                    </select>
+                    <label style="color:var(--muted)">Category</label>
+                    <select id="categoryFilter" onchange="loadTable()" style="padding:8px;border-radius:8px;border:1px solid #e6eef8">
+                        <option value="All">All</option>
+                        <option value="Pothole">Pothole</option>
+                        <option value="Garbage">Garbage</option>
+                        <option value="Streetlight">Streetlight</option>
+                        <option value="Water Leakage">Water Leakage</option>
+                    </select>
+                </div>
+
+                <table class="table" aria-label="Issues table">
+                    <thead>
+                        <tr>
+                            <th>Issue</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Deadline</th>
+                            <th>Money</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function logout(){ localStorage.removeItem('active_staff'); window.location.href='staff_login.html' }
+
+        function loadTable(){
+            const complaints = JSON.parse(localStorage.getItem('complaints'))||[];
+            const statusFilter = document.getElementById('statusFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const search = (document.getElementById('searchInput').value||'').toLowerCase().trim();
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            let counts = { total:0, Pending:0, Verified:0, 'In-Progress':0, Solved:0 };
+
+            complaints.forEach((c, index) => {
+                counts.total++;
+                if(c.status && counts[c.status]!==undefined) counts[c.status]++;
+
+                if(statusFilter!=='All' && c.status!==statusFilter) return;
+                if(categoryFilter!=='All' && c.category!==categoryFilter) return;
+                if(search){
+                    const hay = ((c.title||'') + ' ' + (c.category||'') + ' ' + (c.status||'')).toLowerCase();
+                    if(!hay.includes(search)) return;
+                }
+
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${escapeHtml(c.title||'-')}</td>
+                    <td>${escapeHtml(c.category||'-')}</td>
+                    <td>${escapeHtml(c.status||'-')}</td>
+                    <td>${escapeHtml(c.deadline||'-')}</td>
+                    <td>₹${c.money||0}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn verify" onclick="updateStatus(${index}, 'Verified')">✔ Verify</button>
+                            <button class="btn progress" onclick="updateStatus(${index}, 'In-Progress')">⟳ Progress</button>
+                            <button class="btn solve" onclick="updateStatus(${index}, 'Solved')">✓ Solve</button>
+                            <button class="btn money-btn" onclick="addMoney(${index})">💰 Money</button>
+                            <button class="btn deadline-btn" onclick="addDeadline(${index})">📅 Deadline</button>
+                            <button class="btn view-btn" onclick="openIssue(${index})">🔍 View</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if(!tbody.children.length){
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td class="no-data" colspan="6">No issues found.</td>';
+                tbody.appendChild(tr);
+            }
+
+            document.getElementById('totalCount').textContent = counts.total;
+            document.getElementById('pendingCount').textContent = counts.Pending || 0;
+            document.getElementById('verifiedCount').textContent = counts.Verified || 0;
+            document.getElementById('inProgressCount').textContent = counts['In-Progress'] || 0;
+            document.getElementById('solvedCount').textContent = counts.Solved || 0;
+        }
+
+        function openIssue(i){ localStorage.setItem('view_issue_index', i); window.location.href='staff_issue_view.html' }
+
+        function updateStatus(i, status){
+            const complaints = JSON.parse(localStorage.getItem('complaints'))||[];
+            if(!complaints[i]) return;
+            complaints[i].status = status;
+            localStorage.setItem('complaints', JSON.stringify(complaints));
+            loadTable();
+        }
+
+        function addMoney(i){
+            const amount = prompt('Enter amount to allocate (₹):');
+            if(!amount) return;
+            const val = parseInt(amount);
+            if(Number.isNaN(val)) return alert('Enter a valid number');
+            const complaints = JSON.parse(localStorage.getItem('complaints'))||[];
+            if(!complaints[i]) return;
+            complaints[i].money = val;
+            localStorage.setItem('complaints', JSON.stringify(complaints));
+            const total = complaints.reduce((s,c)=>s+(c.money||0),0);
+            localStorage.setItem('money_allocated_total', total);
+            loadTable();
+        }
+
+        function addDeadline(i){
+            const date = prompt('Enter deadline (YYYY-MM-DD):');
+            if(!date) return;
+            const complaints = JSON.parse(localStorage.getItem('complaints'))||[];
+            if(!complaints[i]) return;
+            complaints[i].deadline = date;
+            localStorage.setItem('complaints', JSON.stringify(complaints));
+            loadTable();
+        }
+
+        function escapeHtml(s){
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTable);
+    </script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Track Issue – CivicFix</title>
+
+<style>
+/* GLOBAL */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eef2f7;
+    animation: fadeBg 0.6s ease-in-out;
+}
+
+@keyframes fadeBg {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* HEADER */
+.header {
+    background: #005bea;
+    padding: 15px;
+    color: white;
+    text-align: center;
+    font-size: 22px;
+    animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* MAIN BOX */
+.container {
+    max-width: 600px;
+    margin: 25px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+/* IMAGE */
+.img-box img {
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 10px;
+    animation: fadeIn 1s ease-in;
+}
+
+/* TRACK LINE */
+.track-line {
+    margin: 30px 20px;
+    position: relative;
+    padding-left: 30px;
+}
+
+/* Yellow progress line */
+.track-progress {
+    position: absolute;
+    left: 12px;
+    top: 0;
+    width: 4px;
+    height: 0; /* JS controls this */
+    background: #ffca28;
+    border-radius: 4px;
+    transition: height 1s ease;
+}
+
+/* STEPS */
+.step {
+    margin: 30px 0;
+    position: relative;
+    padding-left: 10px;
+    opacity: 0;
+    animation: fadeIn 0.8s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Dot */
+.circle {
+    width: 25px;
+    height: 25px;
+    background: #ccc;
+    border-radius: 50%;
+    position: absolute;
+    left: -35px;
+    top: 0px;
+    transition: 0.3s;
+}
+
+/* Active glowing dot */
+.active .circle {
+    background: #ffca28;
+    transform: scale(1.3);
+    animation: pulse 1.2s infinite;
+    box-shadow: 0 0 15px rgba(255,200,50,0.9);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1.1); }
+    50% { transform: scale(1.35); }
+    100% { transform: scale(1.1); }
+}
+
+/* Glow bar on active step */
+.active::before {
+    content: "";
+    position: absolute;
+    left: -22px;
+    top: 10px;
+    width: 6px;
+    height: 35px;
+    background: rgba(255, 202, 40, 0.7);
+    border-radius: 3px;
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from { opacity: 0.2; }
+    to { opacity: 1; }
+}
+
+.step h3 {
+    margin: 0;
+    color: #333;
+}
+
+.step p {
+    margin: 3px 0 0 0;
+    font-size: 13px;
+    color: #444;
+}
+
+/* BACK BUTTON */
+.btn {
+    margin-top: 25px;
+    width: 100%;
+    padding: 12px;
+    background: #005bea;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #0048a5;
+    transform: scale(1.03);
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">📍 Track Your Complaint</div>
+
+<div class="container">
+    <h2 id="title">Loading...</h2>
+
+    <div class="img-box">
+        <img id="issueImage">
+    </div>
+
+    <!-- TRACKING -->
+    <div class="track-line">
+        <div id="progressLine" class="track-progress"></div>
+
+        <div id="step1" class="step"><div class="circle"></div><h3>Pending</h3><p>Your complaint has been received.</p></div>
+        <div id="step2" class="step"><div class="circle"></div><h3>Verified</h3><p>The staff verified your issue.</p></div>
+        <div id="step3" class="step"><div class="circle"></div><h3>In-Progress</h3><p>The team is working on your issue.</p></div>
+        <div id="step4" class="step"><div class="circle"></div><h3>Solved</h3><p>Your issue has been resolved!</p></div>
+    </div>
+
+    <button class="btn" onclick="goBack()">⬅ Back</button>
+</div>
+
+<script>
+// LOAD COMPLAINT
+let id = localStorage.getItem("track_id");
+let list = JSON.parse(localStorage.getItem("complaints")) || [];
+let issue = list.find(c => c.id == id);
+
+document.getElementById("title").innerText = issue.title;
+document.getElementById("issueImage").src = issue.image;
+
+let status = issue.status;
+
+// ACTIVATE STEPS
+function activate(id) {
+    document.getElementById(id).classList.add("active");
+}
+
+// Status logic
+if (status === "Pending") {
+    activate("step1");
+}
+if (status === "Verified") {
+    activate("step1");
+    activate("step2");
+}
+if (status === "In-Progress") {
+    activate("step1");
+    activate("step2");
+    activate("step3");
+}
+if (status === "Solved") {
+    activate("step1");
+    activate("step2");
+    activate("step3");
+    activate("step4");
+}
+
+// DYNAMIC LINE HEIGHT
+let line = document.getElementById("progressLine");
+
+let stepHeights = {
+    "Pending": 40,
+    "Verified": 120,
+    "In-Progress": 205,
+    "Solved": 290
+};
+
+line.style.height = stepHeights[status] + "px";
+
+// BACK
+function goBack() {
+    window.location.href = "user_complaints.html";
+}
+</script>
+
+</body>
+</html>

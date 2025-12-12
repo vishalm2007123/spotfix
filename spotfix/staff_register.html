@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Staff Registration – Spot Fix</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #eef2f7;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 450px;
+        background: white;
+        margin: 30px auto;
+        padding: 50px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border: 1px solid #bbb;
+        font-size: 15px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #00882f;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        margin-top: 12px;
+        font-size: 17px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #006f25;
+    }
+
+    .error { color: red; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Government Staff Registration</h2>
+
+    <input type="text" id="name" placeholder="Full Name">
+    <input type="text" id="dept" placeholder="Department Name (e.g., Roads, Waste)">
+    <input type="text" id="staffid" placeholder="Staff ID">
+    <input type="email" id="email" placeholder="Email Address">
+    <input type="password" id="password" placeholder="Password">
+    <input type="password" id="confirm" placeholder="Confirm Password">
+    <input type="text" id="office" placeholder="Office Location">
+
+    <button onclick="registerStaff()">Register Staff</button>
+    <p id="msg" class="error"></p>
+
+    <p style="text-align:center;margin-top:10px;">
+        Already registered?  
+        <a href="staff_login.html">Login Here</a>
+    </p>
+</div>
+
+<script>
+function registerStaff() {
+    let name = document.getElementById("name").value.trim();
+    let dept = document.getElementById("dept").value.trim();
+    let staffid = document.getElementById("staffid").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let pass = document.getElementById("password").value.trim();
+    let conf = document.getElementById("confirm").value.trim();
+    let office = document.getElementById("office").value.trim();
+    let msg = document.getElementById("msg");
+
+    msg.innerHTML = "";
+
+    if (!name || !dept || !staffid || !email || !pass || !conf || !office) {
+        msg.innerHTML = "Please fill all fields.";
+        return;
+    }
+
+    if (pass !== conf) {
+        msg.innerHTML = "Passwords do not match.";
+        return;
+    }
+
+    // Save staff details
+    let staffData = {
+        name,
+        dept,
+        staffid,
+        email,
+        pass,
+        office
+    };
+
+    localStorage.setItem("staff_" + staffid, JSON.stringify(staffData));
+
+    alert("Staff Registered Successfully!");
+    window.location.href = "staff_login.html";
+}
+</script>
+
+</body>
+</html>

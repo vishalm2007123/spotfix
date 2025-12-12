@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spot Fix – Issue Management</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f1f4f8;
+        display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 230px;
+        background: #003e7e;
+        height: 100vh;
+        padding: 20px;
+        color: white;
+        box-sizing: border-box;
+    }
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .menu-item {
+        margin: 15px 0;
+        padding: 10px;
+        background: #0059b3;
+        border-radius: 6px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .menu-item:hover {
+        background: #0073e6;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html></body></script>
+nloadTable();}    loadTable();
+n    localStorage.setItem("complaints", JSON.stringify(complaints));    complaints[i].deadline = date;
+n    let complaints = JSON.parse(localStorage.getItem("complaints"));    if (!date) return;    let date = prompt("Enter deadline (YYYY-MM-DD):");
+nfunction addDeadline(i) {}    loadTable();
+n    localStorage.setItem("complaints", JSON.stringify(complaints));    localStorage.setItem("money_allocated_total", totalMoney);
+n    let totalMoney = complaints.reduce((sum, c) => sum + (c.money || 0), 0);    complaints[i].money = amount;
+n    let complaints = JSON.parse(localStorage.getItem("complaints"));
+n    amount = parseInt(amount);    if (!amount) return;    let amount = prompt("Enter amount to allocate (₹):");
+nfunction addMoney(i) {}    loadTable();    localStorage.setItem("complaints", JSON.stringify(complaints));    complaints[i].status = status;    let complaints = JSON.parse(localStorage.getItem("complaints"));
+nfunction updateStatus(i, status) {}    window.location.href = "staff_issue_view.html";    localStorage.setItem("view_issue_index", i);function openIssue(i) {
+n// Open detailed view}    });        tbody.innerHTML += row;        `;        </tr>            </td>                <button class="btn view-btn" onclick="openIssue(${index})">View</button>                <button class="btn deadline-btn" onclick="addDeadline(${index})">Deadline</button>                <button class="btn money-btn" onclick="addMoney(${index})">Money</button>                <button class="btn solve" onclick="updateStatus(${index}, 'Solved')">Solve</button>                <button class="btn progress" onclick="updateStatus(${index}, 'In-Progress')">Progress</button>                <button class="btn verify" onclick="updateStatus(${index}, 'Verified')">Verify</button>            <td>            <td>₹${c.money || 0}</td>            <td>${c.deadline ? c.deadline : "-"}</td>            <td>${c.status}</td>            <td>${c.category}</td>            <td>${c.title}</td>        <tr>
+n        let row = `        if (categoryFilter !== "All" && c.category !== categoryFilter) return;        if (statusFilter !== "All" && c.status !== statusFilter) return;
+n    complaints.forEach((c, index) => {    tbody.innerHTML = "";
+n    let tbody = document.getElementById("tableBody");    let categoryFilter = document.getElementById("categoryFilter").value;    let statusFilter = document.getElementById("statusFilter").value;    let complaints = JSON.parse(localStorage.getItem("complaints")) || [];function loadTable() {
+n// Load table}    window.location.href = "staff_login.html";    localStorage.removeItem("active_staff");
+nfunction logout() {
+n<script></div>    </table>        <tbody id="tableBody"></tbody>        </thead>            </tr>                <th>Actions</th>                <th>Money</th>                <th>Deadline</th>                <th>Status</th>                <th>Category</th>                <th>Issue</th>            <tr>        <thead>    <table>
+n    <!-- ISSUES TABLE -->    </div>        </select>            <option value="Water Leakage">Water Leakage</option>            <option value="Streetlight">Streetlight</option>            <option value="Garbage">Garbage</option>            <option value="Pothole">Pothole</option>            <option value="All">All</option>        <select id="categoryFilter" onchange="loadTable()">
+n        <label>Filter by Category:</label>        </select>            <option value="Solved">Solved</option>            <option value="In-Progress">In-Progress</option>            <option value="Verified">Verified</option>            <option value="Pending">Pending</option>            <option value="All">All</option>        <select id="statusFilter" onchange="loadTable()">        <label>Filter by Status:</label>    <div class="filter-box">
+n    <!-- FILTER SECTION -->    <div class="title">Manage Reported Issues</div><div class="main">
+n<!-- MAIN CONTENT --></div>
+n    <div class="menu-item" onclick="logout()">🚪 Logout</div>
+n    <div class="menu-item" onclick="location.href='issue_management.html'">📝 Manage Issues</div>
+n    <div class="menu-item" onclick="location.href='staff_home.html'">🏠 Dashboard</div>    <h2>Staff Panel</h2><div class="sidebar"><!-- SIDEBAR --><body></head></style>    .view-btn { background: #444; }    .deadline-btn { background: #c0392b; }    .money-btn { background: #8e44ad; }    .solve { background: #2e7d32; }    .progress { background: #ff9800; }    .verify { background: #0066cc; }    }        color: white;        cursor: pointer;        border-radius: 6px;        border: none;        padding: 6px 10px;
+n    .btn {    }        background: #eef5ff;    tr:hover {    }        color: white;        background: #003e7e;    th {    }        border-bottom: 1px solid #ddd;        text-align: left;        padding: 14px;    th, td {    }        box-shadow: 0px 2px 8px rgba(0,0,0,0.1);        overflow: hidden;        border-radius: 10px;        background: white;        border-collapse: collapse;        width: 100%;    table {
+n    /* Table */    }        border: 1px solid #aaa;        border-radius: 6px;        padding: 10px;    select {    }        box-shadow: 0px 2px 8px rgba(0,0,0,0.1);        margin-bottom: 20px;        align-items: center;        gap: 20px;        display: flex;        border-radius: 10px;        padding: 15px;        background: white;    .filter-box {
+n    /* Filters */    }        margin-bottom: 15px;        color: #003e7e;        font-weight: bold;        font-size: 24px;    .title {    }        padding: 20px;        flex-grow: 1;    .main {n    /* Main content */

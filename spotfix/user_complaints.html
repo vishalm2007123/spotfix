@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Complaints – Spot Fix</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f3f4f7;
+    }
+
+    .header {
+        background: #005bea;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 0 10px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        font-size: 14px;
+        text-align: left;
+    }
+
+    th {
+        background: #005bea;
+        color: #fff;
+    }
+
+    tr:hover {
+        background: #f1f7ff;
+        cursor: pointer;
+    }
+
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        color: white;
+        display: inline-block;
+    }
+
+    .Pending { background: #9e9e9e; }
+    .Verified { background: #1976d2; }
+    .In-Progress { background: #ff9800; }
+    .Solved { background: #2e7d32; }
+
+    .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .back-btn {
+        text-decoration: none;
+        background: #ffca28;
+        padding: 8px 14px;
+        border-radius: 18px;
+        color: #222;
+        font-size: 13px;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">My Complaints</div>
+
+<div class="container">
+    <div class="top-row">
+        <div id="userInfo"></div>
+        <a href="home.html" class="back-btn">⬅ Back to Home</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody id="body"></tbody>
+    </table>
+</div>
+
+<script>
+const userName = localStorage.getItem("user_name") || "Citizen";
+document.getElementById("userInfo").innerText = "Logged in as: " + userName;
+
+let complaints = JSON.parse(localStorage.getItem("complaints")) || [];
+let userComplaints = complaints.filter(c => c.user === userName);
+
+let body = document.getElementById("body");
+
+if (userComplaints.length === 0) {
+    body.innerHTML = `<tr><td colspan="4">No complaints submitted yet.</td></tr>`;
+} else {
+    userComplaints.forEach(c => {
+        
+        let date = new Date(c.createdAt);
+        let dateStr = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+
+        body.innerHTML += `
+            <tr onclick="track(${c.id})">
+                <td>${c.title}</td>
+                <td>${c.category}</td>
+                <td><span class="status-badge ${c.status}">${c.status}</span></td>
+                <td>${dateStr}</td>
+            </tr>
+        `;
+    });
+}
+
+// TRACKING FUNCTION
+function track(id) {
+    localStorage.setItem("track_id", id);
+    window.location.href = "track_complaint.html";
+}
+</script>
+
+</body>
+</html>

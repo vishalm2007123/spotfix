@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SpotFix – Citizen Dashboard</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Leaflet Heatmap -->
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
+<style>
+/* ---------- THEME ---------- */
+:root {
+  --bg: #f5f7fb;
+  --bg-card: #ffffff;
+  --text: #14161f;
+  --muted: #5b6072;
+  --accent: #2563eb;
+  --border: #dde1ee;
+  --shadow-soft: 0 18px 45px rgba(15,23,42,0.12);
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: radial-gradient(circle at top left, #e0e7ff, var(--bg));
+  color: var(--text);
+}
+
+.container {
+  max-width: 1180px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+/* Welcome banner */
+.welcome {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+}
+
+.welcome h1 {
+  margin: 5px 0;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.welcome p {
+  margin: 4px 0;
+  color: var(--muted);
+}
+
+/* Cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin-top: 25px;
+}
+
+.card {
+  background: white;
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+.card h3 { margin: 0 0 8px; color: var(--muted); font-size: 15px; }
+.big { font-size: 34px; font-weight: 800; }
+
+/* Buttons */
+.btn-row { text-align:center; margin-top:25px; }
+
+.btn {
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  margin: 5px;
+  transition: 0.25s;
+  box-shadow: 0 10px 22px rgba(37,99,235,0.35);
+}
+.btn:hover { transform: translateY(-3px); }
+
+/* -------- MAP -------- */
+.map-card {
+  background: white;
+  padding: 22px;
+  margin-top: 30px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+#leafletMap {
+  width: 100%;
+  height: 460px;
+  border-radius: 18px;
+  margin-top: 14px;
+}
+
+/* Legend */
+.legend {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  z-index: 999;
+}
+
+.legend div {
+  display: flex;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.legend span {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+/* ---------- CHATBOT ---------- */
+#chat-toggle {
+  position: fixed;
+  right: 24px; bottom: 24px;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(37,99,235,0.5);
+  z-index: 1000;
+}
+
+#chat-widget {
+  position: fixed;
+  right: 24px;
+  bottom: 92px;
+  width: 320px;
+  max-height: 420px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  border: 1px solid #ddd;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.chat-header {
+  background: var(--accent);
+  color: white;
+  padding: 10px 14px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+.chat-close { cursor: pointer; }
+
+/* chat body */
+.chat-body {
+  padding: 10px;
+  background: #f5f6fa;
+  overflow-y: auto;
+  flex: 1;
+}
+.chat-msg {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin: 4px 0;
+  font-size: 13px;
+}
+.chat-msg.bot { background: #e6edff; }
+.chat-msg.user { background: #2563eb; color: white; margin-left: auto; }
+
+/* chat input */
+.chat-footer {
+  display: flex;
+  padding: 8px;
+  background: #f0f2f5;
+}
+.chat-footer input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+.chat-footer button {
+  padding: 8px 12px;
+  margin-left: 8px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: white;
+  border: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="welcome">
+    <p id="greet">Hello, Citizen</p>
+    <h1>Welcome to SpotFix</h1>
+    <p>Help your city improve by reporting civic issues. 💪</p>
+  </div>
+
+  <div class="cards">
+    <div class="card"><h3>Your Complaints</h3><div class="big" id="userComplaints">0</div></div>
+    <div class="card"><h3>Your Coins</h3><div class="big" id="userCoins">0 🪙</div></div>
+    <div class="card"><h3>Community Complaints</h3><div class="big" id="communityTotal">0</div></div>
+    <div class="card"><h3>Total Solved</h3><div class="big" id="communitySolved">0</div></div>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn" href="report.html">➕ Report Issue</a>
+    <a class="btn" href="user_complaints.html">📋 My Complaints</a>
+    <a class="btn" href="rewards.html">🏆 Rewards</a>
+  </div>
+
+  <!-- MAP CARD -->
+  <div class="map-card">
+    <h3>🗺️ Complaints Heatmap</h3>
+    <p>Status-based heat intensity</p>
+
+    <div id="leafletMap"></div>
+
+    <!-- LEGEND -->
+    <div class="legend">
+      <div><span style="background:red"></span> Pending</div>
+      <div><span style="background:orange"></span> In-Progress / Verified</div>
+      <div><span style="background:green"></span> Solved</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CHATBOT -->
+<button id="chat-toggle">💬</button>
+
+<div id="chat-widget">
+  <div class="chat-header">
+    <span>SpotFix Assistant</span>
+    <span class="chat-close" onclick="toggleChat()">×</span>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-footer">
+    <input id="chatInput" placeholder="Ask me anything...">
+    <button onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<script>
+/* ------------ USER STATS ------------- */
+const userName = localStorage.getItem("user_name") || "Citizen";
+document.getElementById("greet").innerText = "Hello, " + userName;
+
+let complaints = JSON.parse(localStorage.getItem("complaints")) || [];
+
+document.getElementById("communityTotal").innerText = complaints.length;
+document.getElementById("communitySolved").innerText = complaints.filter(c => c.status === "Solved").length;
+document.getElementById("userComplaints").innerText = complaints.filter(c => c.user === userName).length;
+
+let coins = parseInt(localStorage.getItem("user_coins_" + userName)) || 0;
+document.getElementById("userCoins").innerText = coins + " 🪙";
+
+/* ------------ LEAFLET HEATMAP ------------- */
+
+let map = L.map('leafletMap').setView([10.8279, 77.0580], 15);
+
+// Map tile source
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
+}).addTo(map);
+
+let heatPoints = [];
+
+// Create markers + heat points
+complaints.forEach(c => {
+
+  // Location
+  let lat = c.lat || (10.8279 + (Math.random() - 0.5) * 0.01);
+  let lng = c.lng || (77.0580 + (Math.random() - 0.5) * 0.01);
+
+  // Intensity
+  let intensity = 0.6;
+  if (c.status === "Pending") intensity = 1.0;
+  if (c.status === "In-Progress" || c.status === "Verified") intensity = 0.75;
+  if (c.status === "Solved") intensity = 0.4;
+
+  heatPoints.push([lat, lng, intensity]);
+
+  let color = "red";
+  if (c.status === "In-Progress" || c.status === "Verified") color = "orange";
+  if (c.status === "Solved") color = "green";
+
+  let marker = L.circleMarker([lat, lng], {
+    radius: 9,
+    fillColor: color,
+    color: "#fff",
+    weight: 2,
+    fillOpacity: 0.95
+  }).addTo(map);
+
+  marker.bindPopup(`
+    <b>${c.title || "Issue"}</b><br>
+    <b>Status:</b> ${c.status}<br>
+    <b>Location:</b> ${c.location || "Not specified"}<br>
+    <b>User:</b> ${c.user}
+  `);
+});
+
+// Heatmap layer
+L.heatLayer(heatPoints, {
+  radius: 35,
+  blur: 20,
+  maxZoom: 18,
+}).addTo(map);
+
+/* ------------ CHATBOT ------------- */
+
+const chatWidget = document.getElementById("chat-widget");
+const chatBody = document.getElementById("chatBody");
+const chatInput = document.getElementById("chatInput");
+
+document.getElementById("chat-toggle").onclick = () => {
+  chatWidget.style.display = (chatWidget.style.display === "flex" ? "none" : "flex");
+};
+
+function addMsg(text, who) {
+  let box = document.createElement("div");
+  box.className = "chat-msg " + who;
+  box.innerHTML = text;
+  chatBody.appendChild(box);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function sendChat() {
+  let msg = chatInput.value.trim();
+  if (!msg) return;
+  addMsg(msg, "user");
+  chatInput.value = "";
+  setTimeout(() => addMsg(botReply(msg), "bot"), 300);
+}
+
+function botReply(t) {
+  t = t.toLowerCase();
+  if (t.includes("report")) return "Click 'Report Issue' to submit a new complaint.";
+  if (t.includes("coin")) return `You have <b>${coins}</b> coins!`;
+  if (t.includes("map") || t.includes("heatmap")) return "Red = Pending, Orange = In-Progress, Green = Solved.";
+  if (t.includes("hello") || t.includes("hi")) return `Hello ${userName}! How can I help?`;
+  return "I can help with map, coins, reporting, and your data.";
+}
+
+addMsg(`Hi ${userName}! 👋 I’m your SpotFix assistant.`, "bot");
+</script>
+
+</body>
+</html>

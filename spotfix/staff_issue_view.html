@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spot Fix – Issue Management</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f1f4f8;
+        display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 230px;
+        background: #003e7e;
+        height: 100vh;
+        padding: 20px;
+        color: white;
+        box-sizing: border-box;
+    }
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .menu-item {
+        margin: 15px 0;
+        padding: 10px;
+        background: #0059b3;
+        border-radius: 6px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .menu-item:hover {
+        background: #0073e6;
+    }
+
+    /* Main content */
+    .main {
+        flex-grow: 1;
+        padding: 20px;
+    }
+    .title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #003e7e;
+        margin-bottom: 15px;
+    }
+
+    /* Filters */
+    .filter-box {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        margin-bottom: 20px;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+    }
+    select {
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #aaa;
+    }
+
+    /* Table */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+        padding: 14px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background: #003e7e;
+        color: white;
+    }
+    tr:hover {
+        background: #eef5ff;
+    }
+
+    .btn {
+        padding: 6px 10px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        color: white;
+    }
+    .verify { background: #0066cc; }
+    .progress { background: #ff9800; }
+    .solve { background: #2e7d32; }
+    .money-btn { background: #8e44ad; }
+    .deadline-btn { background: #c0392b; }
+    .view-btn { background: #444; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>Staff Panel</h2>
+
+    <div class="menu-item" onclick="location.href='staff_home.html'">🏠 Dashboard</div>
+
+    <div class="menu-item" onclick="location.href='issue_management.html'">📝 Manage Issues</div>
+
+    <div class="menu-item" onclick="logout()">🚪 Logout</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+    <div class="title">Manage Reported Issues</div>
+
+    <!-- FILTER SECTION -->
+    <div class="filter-box">
+        <label>Filter by Status:</label>
+        <select id="statusFilter" onchange="loadTable()">
+            <option value="All">All</option>
+            <option value="Pending">Pending</option>
+            <option value="Verified">Verified</option>
+            <option value="In-Progress">In-Progress</option>
+            <option value="Solved">Solved</option>
+        </select>
+
+        <label>Filter by Category:</label>
+        <select id="categoryFilter" onchange="loadTable()">
+            <option value="All">All</option>
+            <option value="Pothole">Pothole</option>
+            <option value="Garbage">Garbage</option>
+            <option value="Streetlight">Streetlight</option>
+            <option value="Water Leakage">Water Leakage</option>
+        </select>
+    </div>
+
+    <!-- ISSUES TABLE -->
+    <table>
+        <thead>
+            <tr>
+                <th>Issue</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Deadline</th>
+                <th>Money</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+
+<script>
+/* -------------------------------
+   FIX 1: Add sample data if empty
+--------------------------------*/
+function loadSampleComplaints() {
+    let list = JSON.parse(localStorage.getItem("complaints"));
+
+    if (!list || list.length === 0) {
+
+        let sample = [
+            {
+                title: "Pothole near Main Road",
+                category: "Pothole",
+                description: "Large pothole causing traffic slowdown.",
+                status: "Pending",
+                location: "Main Road, Sector 12",
+                user: "Demo User",
+                deadline: "",
+                money: 0,
+                image: ""
+            },
+            {
+                title: "Garbage Not Collected",
+                category: "Garbage",
+                description: "Garbage dumped for 3 days.",
+                status: "Pending",
+                location: "Market Road",
+                user: "Demo User",
+                deadline: "",
+                money: 0,
+                image: ""
+            },
+            {
+                title: "Streetlight Not Working",
+                category: "Streetlight",
+                description: "Streetlight near park is broken.",
+                status: "Pending",
+                location: "Green Park",
+                user: "Demo User",
+                deadline: "",
+                money: 0,
+                image: ""
+            }
+        ];
+
+        localStorage.setItem("complaints", JSON.stringify(sample));
+    }
+}
+
+/* -------------------------------
+   FIX 2: Load Table
+--------------------------------*/
+function loadTable() {
+
+    loadSampleComplaints(); // guarantee data exists
+
+    let complaints = JSON.parse(localStorage.getItem("complaints"));
+    let statusFilter = document.getElementById("statusFilter").value;
+    let categoryFilter = document.getElementById("categoryFilter").value;
+
+    let tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    complaints.forEach((c, index) => {
+
+        if (statusFilter !== "All" && c.status !== statusFilter) return;
+        if (categoryFilter !== "All" && c.category !== categoryFilter) return;
+
+        let row = `
+        <tr>
+            <td>${c.title}</td>
+            <td>${c.category}</td>
+            <td>${c.status}</td>
+            <td>${c.deadline ? c.deadline : "-"}</td>
+            <td>₹${c.money || 0}</td>
+
+            <td>
+                <button class="btn verify" onclick="updateStatus(${index}, 'Verified')">Verify</button>
+                <button class="btn progress" onclick="updateStatus(${index}, 'In-Progress')">Progress</button>
+                <button class="btn solve" onclick="updateStatus(${index}, 'Solved')">Solve</button>
+
+                <button class="btn money-btn" onclick="addMoney(${index})">Money</button>
+                <button class="btn deadline-btn" onclick="addDeadline(${index})">Deadline</button>
+
+                <button class="btn view-btn" onclick="openIssue(${index})">View</button>
+            </td>
+        </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+
+/* -------------------------------
+   FIX 3: VIEW ISSUE PAGE LINK
+--------------------------------*/
+function openIssue(i) {
+    localStorage.setItem("view_issue_index", i);
+    window.location.href = "staff_issue_view.html";
+}
+
+/* -------------------------------
+   ACTION FUNCTIONS
+--------------------------------*/
+function updateStatus(i, status) {
+    let complaints = JSON.parse(localStorage.getItem("complaints"));
+    complaints[i].status = status;
+    localStorage.setItem("complaints", JSON.stringify(complaints));
+    loadTable();
+}
+
+function addMoney(i) {
+    let amount = prompt("Enter amount (₹):");
+    if (!amount) return;
+    amount = parseInt(amount);
+
+    let complaints = JSON.parse(localStorage.getItem("complaints"));
+    complaints[i].money = amount;
+
+    let totalMoney = complaints.reduce((sum, c) => sum + (c.money || 0), 0);
+    localStorage.setItem("money_allocated_total", totalMoney);
+
+    localStorage.setItem("complaints", JSON.stringify(complaints));
+    loadTable();
+}
+
+function addDeadline(i) {
+    let date = prompt("Enter deadline (YYYY-MM-DD):");
+    if (!date) return;
+
+    let complaints = JSON.parse(localStorage.getItem("complaints"));
+    complaints[i].deadline = date;
+
+    localStorage.setItem("complaints", JSON.stringify(complaints));
+    loadTable();
+}
+
+function logout() {
+    localStorage.removeItem("active_staff");
+    window.location.href = "staff_login.html";
+}
+
+// INITIAL LOAD
+loadTable();
+</script>
+
+</body>
+</html>

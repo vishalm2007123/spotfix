@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SpotFix – Citizen Survey</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg: #f3f6ff;
+    --card: #ffffff;
+    --accent: #2563eb;
+    --text: #1e293b;
+    --muted: #64748b;
+    --radius: 20px;
+}
+
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: var(--bg);
+}
+
+/* Container */
+.survey-box {
+    max-width: 650px;
+    margin: 40px auto;
+    background: var(--card);
+    padding: 35px;
+    border-radius: var(--radius);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+}
+
+/* Header */
+h1 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+}
+.subtitle {
+    text-align: center;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 25px;
+}
+
+/* Questions */
+.question {
+    margin-bottom: 22px;
+}
+
+.question p {
+    margin: 0 0 10px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Inputs */
+input[type="text"], textarea, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 10px;
+    border: 1px solid #d0d7e6;
+    font-size: 15px;
+}
+
+textarea {
+    height: 100px;
+    resize: none;
+}
+
+/* Rating */
+.rating {
+    display: flex;
+    gap: 10px;
+}
+
+.rating button {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    border: none;
+    background: #e2e8f0;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.rating button:hover {
+    background: var(--accent);
+    color: white;
+}
+.rating button.active {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* Submit */
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.submit-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Thank you message */
+#thankyou {
+    display: none;
+    text-align: center;
+    padding: 30px;
+}
+#thankyou h2 {
+    color: var(--accent);
+}
+</style>
+</head>
+
+<body>
+
+<div class="survey-box" id="surveyForm">
+
+    <h1>Citizen Feedback Survey</h1>
+    <p class="subtitle">Help us improve your city. This survey is 100% anonymous.</p>
+
+    <!-- Q1 -->
+    <div class="question">
+        <p>1. How satisfied are you with your city's cleanliness?</p>
+        <div class="rating" id="rating1">
+            <button onclick="selectRating(1,1)">1</button>
+            <button onclick="selectRating(2,1)">2</button>
+            <button onclick="selectRating(3,1)">3</button>
+            <button onclick="selectRating(4,1)">4</button>
+            <button onclick="selectRating(5,1)">5</button>
+        </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question">
+        <p>2. What type of civic issues do you face most often?</p>
+        <select id="issueType">
+            <option value="">Select</option>
+            <option>Potholes</option>
+            <option>Garbage Overflow</option>
+            <option>Street Lights</option>
+            <option>Water Problems</option>
+            <option>Drainage / Sewage</option>
+            <option>Other</option>
+        </select>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question">
+        <p>3. How fast does your local authority respond?</p>
+        <select id="responseSpeed">
+            <option value="">Select</option>
+            <option>Very Slow</option>
+            <option>Slow</option>
+            <option>Moderate</option>
+            <option>Fast</option>
+            <option>Very Fast</option>
+        </select>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question">
+        <p>4. How likely are you to recommend SpotFix to others?</p>
+        <div class="rating" id="rating2">
+            <button onclick="selectRating(1,2)">1</button>
+            <button onclick="selectRating(2,2)">2</button>
+            <button onclick="selectRating(3,2)">3</button>
+            <button onclick="selectRating(4,2)">4</button>
+            <button onclick="selectRating(5,2)">5</button>
+        </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question">
+        <p>5. Any suggestions to improve our city?</p>
+        <textarea id="suggestion"></textarea>
+    </div>
+
+    <button class="submit-btn" onclick="submitSurvey()">Submit Survey</button>
+
+</div>
+
+<!-- THANK YOU SCREEN -->
+<div id="thankyou">
+    <h2>🎉 Thank You!</h2>
+    <p>Your feedback helps us make the city better.</p>
+</div>
+
+<script>
+let rating1 = 0;
+let rating2 = 0;
+
+function selectRating(value, qn) {
+    let group = document.getElementById("rating" + qn).children;
+
+    for (let b of group) b.classList.remove("active");
+
+    group[value - 1].classList.add("active");
+
+    if (qn === 1) rating1 = value;
+    if (qn === 2) rating2 = value;
+}
+
+function submitSurvey() {
+    let issue = document.getElementById("issueType").value;
+    let speed = document.getElementById("responseSpeed").value;
+    let suggestion = document.getElementById("suggestion").value.trim();
+
+    if (!rating1 || !rating2 || !issue || !speed) {
+        alert("Please complete all questions!");
+        return;
+    }
+
+    let surveyData = JSON.parse(localStorage.getItem("survey_responses")) || [];
+
+    surveyData.push({
+        cleanliness: rating1,
+        issue_type: issue,
+        response_speed: speed,
+        recommendation: rating2,
+        suggestion: suggestion,
+        time: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("survey_responses", JSON.stringify(surveyData));
+
+    document.getElementById("surveyForm").style.display = "none";
+    document.getElementById("thankyou").style.display = "block";
+}
+</script>
+
+</body>
+</html>

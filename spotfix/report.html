@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Report Issue – Spot Fix</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: radial-gradient(circle at top, #00c6ff, #005bea);
+        color: #fff;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 25px auto;
+        padding: 15px;
+    }
+
+    .box {
+        background: rgba(0,0,0,0.3);
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+        margin-top: 0;
+        text-align: center;
+    }
+
+    label {
+        display: block;
+        margin-top: 12px;
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: none;
+        margin-top: 6px;
+        font-size: 14px;
+    }
+
+    textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .img-preview {
+        margin-top: 10px;
+        width: 100%;
+        max-height: 220px;
+        border-radius: 10px;
+        object-fit: cover;
+        display: none;
+    }
+
+    .ai-tag {
+        margin-top: 6px;
+        font-size: 13px;
+        color: #ffe082;
+    }
+
+    .btn {
+        margin-top: 16px;
+        width: 100%;
+        padding: 12px;
+        background: #ffca28;
+        border: none;
+        border-radius: 24px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #222;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    .btn:hover {
+        background: #ffd54f;
+    }
+
+    .msg {
+        margin-top: 10px;
+        font-size: 14px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="box">
+        <h2>Report a New Civic Issue</h2>
+
+        <label>Issue Title</label>
+        <input type="text" id="title" placeholder="Example: Big pothole near school gate">
+
+        <label>Description</label>
+        <textarea id="description" placeholder="Describe the problem clearly..."></textarea>
+
+        <label>Upload Photo</label>
+        <input type="file" id="imageInput" accept="image/*">
+        <img id="preview" class="img-preview">
+
+        <label>Category</label>
+        <select id="category">
+            <option value="">Select Category</option>
+            <option value="Pothole">Pothole</option>
+            <option value="Garbage">Garbage</option>
+            <option value="Streetlight">Streetlight</option>
+            <option value="Water Leakage">Water Leakage</option>
+            <option value="Other">Other</option>
+        </select>
+        <div class="ai-tag" id="aiHint">AI Suggestion: Waiting for image / description...</div>
+
+        <label>Location</label>
+        <input type="text" id="location" placeholder="Example: Main Road, Near Bus Stand">
+
+        <button class="btn" onclick="submitComplaint()">Submit & Earn 25 Coins</button>
+        <div class="msg" id="msg"></div>
+    </div>
+</div>
+
+<script>
+let selectedImageData = "";
+
+// Load default location from user profile if available
+let savedLoc = localStorage.getItem("user_loc");
+if (savedLoc) {
+    document.getElementById("location").value = savedLoc;
+}
+
+// IMAGE PREVIEW + READ AS DATA URL
+document.getElementById("imageInput").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        selectedImageData = ev.target.result;
+        const img = document.getElementById("preview");
+        img.src = selectedImageData;
+        img.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+
+    // use filename as hint for AI
+    runAISuggestion(file.name);
+});
+
+// AI suggestion when typing description
+document.getElementById("description").addEventListener("input", function() {
+    runAISuggestion(this.value);
+});
+
+function runAISuggestion(text) {
+    text = text.toLowerCase();
+    let suggested = "Other";
+
+    if (text.includes("pothole") || text.includes("road") || text.includes("hole")) {
+        suggested = "Pothole";
+    } else if (text.includes("garbage") || text.includes("trash") || text.includes("waste") || text.includes("dump")) {
+        suggested = "Garbage";
+    } else if (text.includes("light") || text.includes("streetlight") || text.includes("lamp") || text.includes("dark")) {
+        suggested = "Streetlight";
+    } else if (text.includes("water") || text.includes("leak") || text.includes("pipe") || text.includes("sewage") || text.includes("drain")) {
+        suggested = "Water Leakage";
+    }
+
+    document.getElementById("aiHint").innerText = "AI Suggestion: " + suggested;
+
+    // Auto-set category dropdown if empty or 'Other'
+    const categorySelect = document.getElementById("category");
+    if (!categorySelect.value || categorySelect.value === "Other") {
+        categorySelect.value = suggested;
+    }
+}
+
+function submitComplaint() {
+    const title = document.getElementById("title").value.trim();
+    const desc = document.getElementById("description").value.trim();
+    const cat = document.getElementById("category").value;
+    const loc = document.getElementById("location").value.trim();
+    const msg = document.getElementById("msg");
+    const userName = localStorage.getItem("user_name") || "Citizen";
+
+    msg.style.color = "yellow";
+    msg.innerText = "";
+
+    if (!title || !desc || !cat || !loc) {
+        msg.innerText = "Please fill all the fields and select a category.";
+        return;
+    }
+
+    let complaints = JSON.parse(localStorage.getItem("complaints")) || [];
+
+    let newComplaint = {
+        id: Date.now(),
+        title: title,
+        description: desc,
+        category: cat,
+        location: loc,
+        user: userName,
+        status: "Pending",
+        deadline: null,
+        money: 0,
+        image: selectedImageData,
+        createdAt: new Date().toISOString()
+    };
+
+    complaints.push(newComplaint);
+    localStorage.setItem("complaints", JSON.stringify(complaints));
+
+    // Update global total
+    let total = parseInt(localStorage.getItem("complaints_total") || "0");
+    localStorage.setItem("complaints_total", total + 1);
+
+    // Update coins
+    let userKey = "user_coins_" + userName;
+    let userCoins = parseInt(localStorage.getItem(userKey) || "0");
+    userCoins += 25;
+    localStorage.setItem(userKey, userCoins);
+
+    let globalCoins = parseInt(localStorage.getItem("coins_total") || "0");
+    localStorage.setItem("coins_total", globalCoins + 25);
+
+    msg.style.color = "#c8e6c9";
+    msg.innerText = "Issue submitted successfully! You earned 25 coins 🎉";
+
+    setTimeout(() => {
+        window.location.href = "user_complaints.html";
+    }, 1200);
+}
+</script>
+
+</body>
+</html>
