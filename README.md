@@ -2,10 +2,7 @@
 
 # 🚀 SpotFix — Smart Civic Issue Reporting Platform
 
-🏆 **Hackathon Achievement**
-🥈 **Second Runner-Up** — 8-Hour Hackathon
-🎓 **Exclusive for First-Year Students**
-🔥 **Third Hackathon Win (First Year)**
+
 
 
 
@@ -91,23 +88,8 @@ SpotFix/
 
 
 
-## 🏆 Hackathon Highlights
-
-* ⏱️ Built in **8 hours**
-* 🎓 Exclusive for **first-year students**
-* 🥈 **Second Runner-Up Award**
-* 🏅 **Third Hackathon Win**
-* ⭐ Appreciated for **UI/UX, innovation & real-world impact**
 
 
-
-## 🎯 Key Learnings
-
-* Rapid development under time pressure
-* UI/UX design for real users
-* Map-based data visualization
-* Team collaboration & task prioritization
-* Building scalable ideas without a backend
 
 
 
@@ -121,10 +103,6 @@ SpotFix/
 * Government API integration
 
 
-
-## 🤝 Team
-
-Developed as a team during an intense hackathon sprint with strong collaboration and dedication.
 
 
 
