@@ -106,7 +106,4 @@ SpotFix/
 
 
 
-## 📜 License
-
-This project is created for **educational and hackathon purposes**.
 
